@@ -2,6 +2,7 @@
 @using EcoMonitor.Shared;
 @using Syncfusion.Blazor.Data
 @using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Maps
 @using System.Net.Http.Json
 
 <PageTitle>Home</PageTitle>
@@ -32,7 +33,7 @@
             <h2
               class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200"
             >
-              Dashboard
+              Home
             </h2>
             <!-- Cards -->
             <div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
@@ -189,7 +190,33 @@
         await LoadData();
     }
 }
-
+<br/>
+<div class="w-full overflow-hidden rounded-lg shadow-xs" style="background-color: white;">
+    <div class="w-full overflow-x-auto">
+<SfMaps Background="transparent">
+    <MapsAreaSettings Background="transparent" />
+    <MapsTitleSettings Text="Map of pollutants of the Kyiv region">
+        <MapsTitleTextStyle FontFamily="Segoe UI" />
+    </MapsTitleSettings>
+    <MapsCenterPosition Latitude="50.4501" Longitude="30.5234" />
+    <MapsZoomSettings Enable="false" ZoomFactor="10" />
+    <MapsLayers>
+            <MapsLayer UrlTemplate="https://a.tile.openstreetmap.org/level/tileX/tileY.png" TValue="string">
+                @* <MapsMarkerSettings>
+                    <MapsMarker DataSource="@MarkerDatas" TValue="MarkerData">
+                        <ChildContent>
+                            <MapsMarkerTooltipSettings Visible="true" ValuePath="Name">
+                                <MapsMarkerTooltipTextStyle FontFamily="Segoe UI"></MapsMarkerTooltipTextStyle>
+                            </MapsMarkerTooltipSettings>
+                        </ChildContent>
+                    </MapsMarker>
+                </MapsMarkerSettings> *@
+            </MapsLayer>
+        </MapsLayers>
+</SfMaps>
+</div>
+</div>
+ 
             <!-- Charts -->
             <h2
               class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200"

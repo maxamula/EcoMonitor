@@ -10,6 +10,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.0" PrivateAssets="all" />
 	    <PackageReference Include="Syncfusion.Blazor.Grid" Version="23.1.38" />
+	    <PackageReference Include="Syncfusion.Blazor.Maps" Version="23.1.38" />
     <PackageReference Include="Syncfusion.Blazor.Navigations" Version="23.1.38" />
     <PackageReference Include="Syncfusion.Blazor.Themes" Version="23.1.38" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />

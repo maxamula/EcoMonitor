@@ -16,7 +16,6 @@
       src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"
       defer
     ></script>
-    <script src="./assets/js/init-alpine.js"></script>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.css"
@@ -25,8 +24,6 @@
       src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"
       defer
     ></script>
-    <script src="./assets/js/charts-lines.js" defer></script>
-    <script src="./assets/js/charts-pie.js" defer></script>
 
 <main class="h-full overflow-y-auto">
           <div class="container px-6 mx-auto grid">
@@ -44,22 +41,18 @@
                 <div
                   class="p-3 mr-4 text-orange-500 bg-orange-100 rounded-full dark:text-orange-100 dark:bg-orange-500"
                 >
-                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"
-                    ></path>
-                  </svg>
+                  <img width="30" height="30" src="https://img.icons8.com/external-flaticons-flat-flat-icons/30/external-factory-oil-gas-flaticons-flat-flat-icons.png" alt="external-factory-oil-gas-flaticons-flat-flat-icons"/>
                 </div>
                 <div>
                   <p
                     class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"
                   >
-                    Total clients
+                    Total factories
                   </p>
                   <p
                     class="text-lg font-semibold text-gray-700 dark:text-gray-200"
                   >
-                    6389
+                    4
                   </p>
                 </div>
               </div>
@@ -82,12 +75,12 @@
                   <p
                     class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"
                   >
-                    Account balance
+                    Total tax
                   </p>
                   <p
                     class="text-lg font-semibold text-gray-700 dark:text-gray-200"
                   >
-                    $ 46,760.89
+                    ₴ -
                   </p>
                 </div>
               </div>
@@ -98,17 +91,13 @@
                 <div
                   class="p-3 mr-4 text-blue-500 bg-blue-100 rounded-full dark:text-blue-100 dark:bg-blue-500"
                 >
-                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"
-                    ></path>
-                  </svg>
+                  <img width="20" height="20" src="https://img.icons8.com/color/20/leaf.png" alt="leaf"/>
                 </div>
                 <div>
                   <p
                     class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"
                   >
-                    New sales
+                    Total excess
                   </p>
                   <p
                     class="text-lg font-semibold text-gray-700 dark:text-gray-200"
@@ -124,14 +113,7 @@
                 <div
                   class="p-3 mr-4 text-teal-500 bg-teal-100 rounded-full dark:text-teal-100 dark:bg-teal-500"
                 >
-                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      fill-rule="evenodd"
-                      d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z"
-                      clip-rule="evenodd"
-                    ></path>
-                  </svg>
-                </div>
+<img width="25" height="25" src="https://img.icons8.com/external-wanicon-two-tone-wanicon/25/external-factory-food-technology-wanicon-two-tone-wanicon.png" alt="external-factory-food-technology-wanicon-two-tone-wanicon"/>                </div>
                 <div>
                   <p
                     class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"
@@ -151,8 +133,11 @@
     <div class="w-full overflow-x-auto">
         <SfGrid TValue="EcoMonitor.Shared.Record" AllowPaging="true" DataSource="GridData">
             <GridColumns>
-                <GridColumn Field=@nameof(Record.Id) HeaderText="ID"></GridColumn>
-                <GridColumn Field="RecordYear" HeaderText="Name"></GridColumn>
+                <GridColumn Field="Object.ObjectName" HeaderText="Factory" Width="400"></GridColumn>
+                <GridColumn Field="Pollutant.PollutantName" HeaderText="Pollutant"></GridColumn>
+                <GridColumn Field="Pollutant.DangerClass" HeaderText="Danger class"></GridColumn>
+                <GridColumn Field="PollutionValue" HeaderText="Value"></GridColumn>
+                <GridColumn Field="RecordYear" HeaderText="Year"></GridColumn>
             </GridColumns>
         </SfGrid>
     </div>
@@ -174,6 +159,10 @@
                 try
                 {
                     List<EcoMonitor.Shared.Record> response = await c.GetFromJsonAsync<List<EcoMonitor.Shared.Record>>($"api/pollution/get");
+                    foreach (var rec in response)
+                    {
+                        Console.WriteLine(rec.Object.ObjectName);
+                    }
                     if (response != null)
                     {
                         GridData = response;

@@ -18,6 +18,8 @@ namespace EcoMonitor.Server.Controllers
         public IActionResult Get()
         {
             var records = _context.Records
+                .Include(r => r.Pollutant)
+                .Include(r => r.Object)
                 .OrderBy(r => r.Id)
                 .ToList();
             return Ok(records);

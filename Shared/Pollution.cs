@@ -15,8 +15,8 @@ namespace EcoMonitor.Shared
 
         public string ObjectName { get; set; }
         public string ObjectDesc { get; set; }
-        public float CoordLat { get; set; }
-        public float CoordLng { get; set; }
+        public float Latitude { get; set; }
+        public float Longitude { get; set; }
     }
 
     public class Pollutant

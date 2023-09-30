@@ -14,12 +14,21 @@ namespace EcoMonitor.Server.Controllers
             
         }
 
-        [HttpGet("get")]
-        public IActionResult Get()
+        [HttpGet("records")]
+        public IActionResult GetRecords()
         {
             var records = _context.Records
                 .Include(r => r.Pollutant)
                 .Include(r => r.Object)
+                .OrderBy(r => r.Id)
+                .ToList();
+            return Ok(records);
+        }
+
+        [HttpGet("objects")]
+        public IActionResult GetObjects()
+        {
+            var records = _context.Object
                 .OrderBy(r => r.Id)
                 .ToList();
             return Ok(records);

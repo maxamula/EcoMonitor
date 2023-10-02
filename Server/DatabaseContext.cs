@@ -22,8 +22,8 @@ namespace EcoMonitor.Server
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Record>().HasOne(r => r.Pollutant).WithMany().HasForeignKey(r => r.PollutantId);
-            modelBuilder.Entity<Record>().HasOne(r => r.Object).WithMany().HasForeignKey(r => r.ObjectId);
+            /*modelBuilder.Entity<Record>().HasOne(r => r.Pollutant).WithMany().HasForeignKey(r => r.PollutantId);
+            modelBuilder.Entity<Record>().HasOne(r => r.Object).WithMany().HasForeignKey(r => r.ObjectId);*/
         }
 
         public DbSet<Record> Records { get; set; }

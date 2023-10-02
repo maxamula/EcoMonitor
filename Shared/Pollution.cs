@@ -32,16 +32,16 @@ namespace EcoMonitor.Shared
     {
         [Key]
         public int Id { get; set; }
-
+        
         [ForeignKey("Objects")]
         public int ObjectId { get; set; }
 
-        public Object Object { get; set; }
+        //public Object Object { get; set; }
 
         [ForeignKey("Pollutant")]
         public int PollutantId { get; set; }
 
-        public Pollutant Pollutant { get; set; }
+        //public Pollutant Pollutant { get; set; }
 
         public float PollutionValue { get; set; }
         public int RecordYear { get; set; }

@@ -4,6 +4,7 @@
 @using Syncfusion.Blazor.Grids
 @using Syncfusion.Blazor.Maps
 @using System.Net.Http.Json
+@using System.Collections.ObjectModel
 
 <PageTitle>Home - EcoMonitor</PageTitle>
 
@@ -72,7 +73,7 @@
 
 <div class="w-full overflow-hidden rounded-lg shadow-xs">
     <div class="w-full overflow-x-auto">
-        <SfGrid TValue="EcoMonitor.Shared.Record" AllowPaging="true" DataSource="records" Toolbar="@(new List<string>() { "Add", "Edit", "Delete" })">
+        <SfGrid TValue="EcoMonitor.Shared.Record" AllowPaging="true" DataSource="@records" Toolbar="@(new List<string>() { "Add", "Edit", "Delete" })">
             <GridEditSettings AllowAdding="true" AllowDeleting="true" AllowEditing="true" Mode="EditMode.Dialog"></GridEditSettings>
             <GridColumns>
                 <GridColumn EditType="EditType.DropDownEdit" Field="Object.ObjectName" HeaderText="Factory" Width="400"></GridColumn>
@@ -184,12 +185,17 @@
 
 
 @code {
-    List<EcoMonitor.Shared.Record> records = new List<EcoMonitor.Shared.Record>();
+    ObservableCollection<EcoMonitor.Shared.Record> records { get; set; }
     List<EcoMonitor.Shared.Object> factories = new List<EcoMonitor.Shared.Object>();
 
     protected override async Task OnInitializedAsync()
     {
         await LoadData();
+    }
+
+    public async Task Saved(CellSaveArgs<EcoMonitor.Shared.Record> Args)
+    {
+        
     }
 
     private async Task LoadData()
@@ -198,7 +204,7 @@
         c.BaseAddress = new System.Uri("http://localhost:5212/");
         try
         {
-            records = await c.GetFromJsonAsync<List<EcoMonitor.Shared.Record>>($"api/pollution/records");
+            records = new ObservableCollection<EcoMonitor.Shared.Record>(await c.GetFromJsonAsync<List<EcoMonitor.Shared.Record>>($"api/pollution/records"));
             factories = await c.GetFromJsonAsync<List<EcoMonitor.Shared.Object>>($"api/pollution/objects");
         }
         catch (Exception ex)

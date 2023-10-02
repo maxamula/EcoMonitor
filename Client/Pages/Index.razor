@@ -3,11 +3,21 @@
 @using Syncfusion.Blazor.Data
 @using Syncfusion.Blazor.Grids
 @using Syncfusion.Blazor.Maps
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.InPlaceEditor
 @using System.Net.Http.Json
 @using System.Collections.ObjectModel
 
 <PageTitle>Home - EcoMonitor</PageTitle>
 
+<style>
+    html{
+        user-select: none;
+    }
+</style>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
@@ -71,21 +81,23 @@
 		</div>
     </div>
 
+
+
 <div class="w-full overflow-hidden rounded-lg shadow-xs">
     <div class="w-full overflow-x-auto">
-        <SfGrid TValue="EcoMonitor.Shared.Record" AllowPaging="true" DataSource="@records" Toolbar="@(new List<string>() { "Add", "Edit", "Delete" })">
-            <GridEditSettings AllowAdding="true" AllowDeleting="true" AllowEditing="true" Mode="EditMode.Dialog"></GridEditSettings>
+        <SfGrid @ref="MainGrid" TValue="EcoMonitor.Shared.Record" AllowPaging="true" DataSource="@Records" Toolbar="@(new List<string>() { "Add", "Edit", "Delete" })">
+            <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"></GridEditSettings>
+            <GridEvents RowEdited="Edited" RowUpdated="Upd" RowEditing="Editing" CellSaved="Saved" TValue="EcoMonitor.Shared.Record"></GridEvents> 
             <GridColumns>
-                <GridColumn EditType="EditType.DropDownEdit" Field="Object.ObjectName" HeaderText="Factory" Width="400"></GridColumn>
-                <GridColumn Field="Pollutant.PollutantName" HeaderText="Pollutant"></GridColumn>
-                <GridColumn Field="Pollutant.DangerClass" HeaderText="Danger class"></GridColumn>
-                <GridColumn Field="PollutionValue" HeaderText="Value"></GridColumn>
+                <GridColumn Visible="false" Field="Id" HeaderText="ID" IsPrimaryKey="true"></GridColumn>
+                <GridColumn AllowEditing="false" Field="Object.ObjectName" HeaderText="Factory" Width="400"></GridColumn>
+                <GridColumn AllowEditing="false" Field="Pollutant.PollutantName" HeaderText="Pollutant"></GridColumn>
+                <GridColumn AllowEditing="false" Field="Pollutant.DangerClass" HeaderText="Danger class"></GridColumn>
                 <GridColumn Field="RecordYear" HeaderText="Year"></GridColumn>
             </GridColumns>
         </SfGrid>
     </div>
 </div>
-
         
 <br/>
 <div class="w-full overflow-hidden rounded-lg shadow-xs" style="background-color: white; padding: 0px 5px;">
@@ -98,13 +110,13 @@
     <MapsLayers>
             <MapsLayer UrlTemplate="https://a.tile.openstreetmap.org/level/tileX/tileY.png" TValue="string">
                 <MapsMarkerSettings>
-                    <MapsMarker Visible="true" DataSource="factories"  TValue="EcoMonitor.Shared.Object">
+                    <MapsMarker Visible="true" DataSource="@Factories"  TValue="EcoMonitor.Shared.Object">
                         <MarkerTemplate>
                             @{
                                 var Data = context as EcoMonitor.Shared.Object;
                                 <div>
-                                    <img width="20" height="20" src="https://img.icons8.com/color/20/factory.png" alt="factory"/>
-                                        <p style="transform: translate(-50%, 0px); text-align: center; overflow: hidden; white-space: nowrap; margin: 0 auto; font-weight: bold; font-size: 12px;">@Data.ObjectName</p>
+                                    <img width="25" height="25" src="https://img.icons8.com/color/20/factory.png" alt="factory"/>
+                                    <p style="transform: translate(-50%, 0px); text-align: center; overflow: hidden; white-space: nowrap; margin: 0 auto; font-weight: bold; font-size: 12px;">@Data.ObjectName</p>
                                 </div>
                              }
                         </MarkerTemplate>
@@ -183,29 +195,25 @@
         </main>
 
 
-
 @code {
-    ObservableCollection<EcoMonitor.Shared.Record> records { get; set; }
-    List<EcoMonitor.Shared.Object> factories = new List<EcoMonitor.Shared.Object>();
+    SfGrid<EcoMonitor.Shared.Record> MainGrid { get; set; }
+    ObservableCollection<EcoMonitor.Shared.Record> Records { get; set; }
+    ObservableCollection<EcoMonitor.Shared.Object> Factories { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadData();
+        await Update();
     }
 
-    public async Task Saved(CellSaveArgs<EcoMonitor.Shared.Record> Args)
-    {
-        
-    }
-
-    private async Task LoadData()
+    private async Task Update()
     {
         HttpClient c = new HttpClient();
         c.BaseAddress = new System.Uri("http://localhost:5212/");
         try
         {
-            records = new ObservableCollection<EcoMonitor.Shared.Record>(await c.GetFromJsonAsync<List<EcoMonitor.Shared.Record>>($"api/pollution/records"));
-            factories = await c.GetFromJsonAsync<List<EcoMonitor.Shared.Object>>($"api/pollution/objects");
+            Records = new ObservableCollection<EcoMonitor.Shared.Record>(await c.GetFromJsonAsync<List<EcoMonitor.Shared.Record>>($"api/pollution/records"));
+            Records.Add(new Record() { RecordYear = new Random().Next(100, 400) });
+            Factories = await c.GetFromJsonAsync<ObservableCollection<EcoMonitor.Shared.Object>>($"api/pollution/objects");
         }
         catch (Exception ex)
         {
@@ -213,8 +221,34 @@
         }
     }
 
+
     private async Task OnPageChanged(int newPage)
     {
-        await LoadData();
+        await Update();
+    }
+
+    public async Task Saved(CellSaveArgs<EcoMonitor.Shared.Record> Args)
+    {
+        await MainGrid.EndEdit();
+    }
+
+    public async Task Edited(RowEditedEventArgs<EcoMonitor.Shared.Record> Args)
+    {
+        Console.WriteLine("ed");
+    }
+
+    public async Task Editing(RowEditingEventArgs<EcoMonitor.Shared.Record> Args)
+    {
+        Console.WriteLine("ing");
+    }
+    
+    public async Task Upd(RowUpdatedEventArgs<EcoMonitor.Shared.Record> Args)
+    {
+        Console.WriteLine("upd");
+    }
+
+    public async void Test(EndEditEventArgs args)
+    {
+        await Update();
     }
 }

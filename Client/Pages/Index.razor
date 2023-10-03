@@ -77,15 +77,16 @@
 <div class="w-full overflow-hidden rounded-lg shadow-xs">
     <div class="w-full overflow-x-auto">
         <SfGrid TValue="EcoMonitor.Shared.Record" AllowFiltering="true" AllowPaging="true" DataSource="@Records" Toolbar="@(new List<string>() { "Edit", "Delete" })">
+            <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu" ShowFilterBarStatus="true"></GridFilterSettings>
             <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"></GridEditSettings>
             <GridEvents RowUpdated="@RowUpdated" TValue="EcoMonitor.Shared.Record"></GridEvents> 
             <GridColumns>
                 <GridColumn Visible="false" Field="Id" HeaderText="ID" IsPrimaryKey="true"></GridColumn>
-                <GridColumn AllowEditing="false" Field="Object.ObjectName" HeaderText="Factory" Width="400"></GridColumn>
-                <GridColumn AllowEditing="false" Field="Pollutant.PollutantName" HeaderText="Pollutant"></GridColumn>
-                <GridColumn AllowEditing="false" Field="Pollutant.DangerClass" HeaderText="Danger class"></GridColumn>
-                <GridColumn Field="PollutionValue" HeaderText="Value"></GridColumn>
-                <GridColumn Field="RecordYear" HeaderText="Year">
+                <GridColumn AllowFiltering="false" AllowEditing="false" Field="Object.ObjectName" HeaderText="Factory" Width="400"></GridColumn>
+                <GridColumn AllowFiltering="false" AllowEditing="false" Field="Pollutant.PollutantName" HeaderText="Pollutant"></GridColumn>
+                <GridColumn AllowFiltering="false" AllowEditing="false" Field="Pollutant.DangerClass" HeaderText="Danger class"></GridColumn>
+                <GridColumn AllowFiltering="false" Field="PollutionValue" HeaderText="Value"></GridColumn>
+                <GridColumn AllowFiltering="true" Field="RecordYear" HeaderText="Year">
                 </GridColumn>
                 <GridColumn HeaderText="Status">
                         <Template>

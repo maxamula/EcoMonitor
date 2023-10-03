@@ -9,6 +9,13 @@ namespace EcoMonitor.Server.Controllers
     [Route("api/pollution")]
     public class DataController : ControllerBase
     {
+        public class UpdateRecordModel
+        {
+            public int Id { get; set; }
+            public float Value { get; set; }
+            public int Year { get; set; }
+        }
+
         public DataController()
         {
             
@@ -33,6 +40,32 @@ namespace EcoMonitor.Server.Controllers
                 .ToList();
             return Ok(records);
         }
+
+        [HttpGet("pollutants")]
+        public IActionResult GetPollutants()
+        {
+            var records = _context.Pollutant
+                .OrderBy(r => r.DangerClass)
+                .ToList();
+            return Ok(records);
+        }
+
+
+        [HttpPost("updaterecord")]
+        public IActionResult PostUpdate([FromBody] UpdateRecordModel model)
+        {
+            var record = _context.Records.Find(model.Id);
+            if (record == null)
+                return NotFound();
+
+            record.PollutionValue = model.Value;
+            record.RecordYear = model.Year;
+            _context.SaveChanges();
+
+            return Ok();
+        }
+
+
 
         private DatabaseContext _context = new DatabaseContext();
     }

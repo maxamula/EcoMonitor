@@ -65,15 +65,15 @@
 			<div class="p-3 mr-4 text-blue-500 bg-blue-100 rounded-full dark:text-blue-100 dark:bg-blue-500"> <img width="20" height="20" src="https://img.icons8.com/color/20/leaf.png" alt="leaf" /> </div>
 			<div>
 				<p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"> Total excess </p>
-				<p class="text-lg font-semibold text-gray-700 dark:text-gray-200"> @TotalExcess </p>
+				<p class="text-lg font-semibold text-gray-700 dark:text-gray-200"> @TotalExcess / @Records.Count </p>
 			</div>
 		</div>
 		<!-- Card -->
 		<div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
 			<div class="p-3 mr-4 text-teal-500 bg-teal-100 rounded-full dark:text-teal-100 dark:bg-teal-500"> <img width="25" height="25" src="https://img.icons8.com/external-wanicon-two-tone-wanicon/25/external-factory-food-technology-wanicon-two-tone-wanicon.png" alt="external-factory-food-technology-wanicon-two-tone-wanicon" /> </div>
 			<div>
-				<p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"> Pending contacts </p>
-				<p class="text-lg font-semibold text-gray-700 dark:text-gray-200"> 35 </p>
+				<p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"> Data </p>
+				<p class="text-lg font-semibold text-gray-700 dark:text-gray-200"> - </p>
 			</div>
 		</div>
     </div>
@@ -85,7 +85,7 @@
         <SfGrid TValue="EcoMonitor.Shared.Record" AllowFiltering="true" AllowPaging="true" DataSource="@Records" Toolbar="@(new List<string>() { "Edit", "Delete" })">
             <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu" ShowFilterBarStatus="true"></GridFilterSettings>
             <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Normal"></GridEditSettings>
-            <GridEvents RowUpdated="@RowUpdated" TValue="EcoMonitor.Shared.Record"></GridEvents> 
+            <GridEvents RowDeleted="RowDeleted" RowUpdated="@RowUpdated" TValue="EcoMonitor.Shared.Record"></GridEvents> 
             <GridColumns>
                 <GridColumn Visible="false" Field="Id" HeaderText="ID" IsPrimaryKey="true"></GridColumn>
                 <GridColumn AllowFiltering="false" AllowEditing="false" Field="Object.ObjectName" HeaderText="Factory" Width="400"></GridColumn>
@@ -203,6 +203,7 @@
 <div class="min-w-0 p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
     <SfUploader ID="UploadFiles" AutoUpload="true" SequentialUpload="false" AllowMultiple="false" AllowedExtensions=".xls, .xlsx">
         <UploaderAsyncSettings SaveUrl="api/pollution/uploadImport"/>
+        <UploaderEvents Success="OnUploadSuccess"/>
     </SfUploader>
 </div>
     <!-- Charts -->
@@ -212,28 +213,16 @@
     <div class="grid gap-6 mb-8 md:grid-cols-2">
         <div class="min-w-0 p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
             <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">
-                Revenue
+                Data
             </h4>
-            <canvas id="pie"></canvas>
             <div class="flex justify-center mt-4 space-x-3 text-sm text-gray-600 dark:text-gray-400">
-                <!-- Chart legend -->
-                <div class="flex items-center">
-                    <span class="inline-block w-3 h-3 mr-1 bg-blue-500 rounded-full"></span>
-                    <span>Shirts</span>
-                </div>
-                <div class="flex items-center">
-                    <span class="inline-block w-3 h-3 mr-1 bg-teal-600 rounded-full"></span>
-                    <span>Shoes</span>
-                </div>
-                <div class="flex items-center">
-                    <span class="inline-block w-3 h-3 mr-1 bg-purple-600 rounded-full"></span>
-                    <span>Bags</span>
-                </div>
+
+
             </div>
         </div>
         <div class="min-w-0 p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
             <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">
-                Quick export
+                Data
             </h4>
             <div style="height:80%;">
 
@@ -292,7 +281,11 @@
     public async Task RowUpdated(RowUpdatedEventArgs<EcoMonitor.Shared.Record> Args)
     {
         await http.PostAsync("api/pollution/updaterecord", new StringContent(JsonConvert.SerializeObject(new { id = Args.Data.Id, value = Args.Data.PollutionValue, year = Args.Data.RecordYear }), Encoding.UTF8, "application/json"));
-        //await Update();
+    }
+
+    public async Task RowDeleted(RowDeletedEventArgs<EcoMonitor.Shared.Record> Args)
+    {
+        await http.PostAsJsonAsync<int>("api/pollution/deleterecord", Args.Datas[0].Id);
     }
 
     private async Task HandleAddRecord()
@@ -301,71 +294,6 @@
         await Update();
     }
 
-    private async Task OnChange(UploadChangeEventArgs args)
-    {
-        foreach (var file in args.Files)
-        {
-            try
-            {
-                using (var stream = File.Open(file.FileInfo.Name, FileMode.Open, FileAccess.Read))
-                {
-                    
-                }
-                await Update();
-            }
-            catch (Exception ex)
-            {
-                return;
-            }
-        }
-    }
 
-    private async void onFileSelect(SelectedEventArgs args)
-    {
-        foreach (var file in args.FilesData)
-        {
-            try
-            {
-                using (var stream = File.Open(file.FileSource, FileMode.Open, FileAccess.Read))
-                {
-                    using (var reader = ExcelReaderFactory.CreateReader(stream))
-                    {
-                        string factory = null;
-                        int factoryId = -1;
-                        while (reader.Read())
-                        {
-                            string temp = reader.GetString(0);
-                            if (temp != null)
-                            {
-                                factory = temp;
-                                var factoryObject = Factories.FirstOrDefault(x => x.ObjectName == factory);
-                                if (factoryObject != null)
-                                    factoryId = factoryObject.Id;
-                                else
-                                    throw new KeyNotFoundException($"Factory {factory} not found");
-                            }
-                            string pollutant = reader.GetString(1);
-                            double pollution = reader.GetDouble(2);
-                            int pollutantId = -1;
-                            var pollutantObject = Pollutants.FirstOrDefault(x => x.PollutantName == pollutant);
-                            if (pollutantObject != null)
-                                factoryId = pollutantObject.Id;
-                            else
-                                throw new KeyNotFoundException($"Pollutant {pollutant} not found");
-
-                            if (pollutantId != -1)
-                            {
-                                await http.PostAsync("api/pollution/addrecord", new StringContent(JsonConvert.SerializeObject(AddRecordData), Encoding.UTF8, "application/json"));
-                            }
-                        }
-                    }
-                }
-                await Update();
-            }
-            catch (Exception ex)
-            {
-                return;
-            }
-        }
-    }
+    private async Task OnUploadSuccess(SuccessEventArgs args) => await Update();
 }

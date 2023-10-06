@@ -50,7 +50,7 @@ namespace EcoMonitor.Server.Controllers
 
 
         [HttpPost("updaterecord")]
-        public IActionResult PostUpdate([FromBody] PostMessageUpdateRecord model)
+        public IActionResult PostUpdateRecord([FromBody] PostMessageUpdateRecord model)
         {
             var record = _context.Records.Find(model.Id);
             if (record == null)
@@ -63,6 +63,15 @@ namespace EcoMonitor.Server.Controllers
             return Ok();
         }
 
+
+        [HttpPost("deleterecord")]
+        public IActionResult PostDeleteRecord([FromBody] int id)
+        {
+            var record = _context.Records.Find(id);
+            _context.Records.Remove(record);
+            _context.SaveChanges();
+            return Ok();
+        }
 
         [HttpPost("addrecord")]
         public IActionResult PostAddRecord([FromBody] PostMessageAddRecord model)
@@ -120,6 +129,7 @@ namespace EcoMonitor.Server.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+                return;
             }
         }
 

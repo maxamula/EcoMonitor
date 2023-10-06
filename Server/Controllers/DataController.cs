@@ -48,7 +48,6 @@ namespace EcoMonitor.Server.Controllers
             return Ok(records);
         }
 
-
         [HttpPost("updaterecord")]
         public IActionResult PostUpdateRecord([FromBody] PostMessageUpdateRecord model)
         {
@@ -87,6 +86,7 @@ namespace EcoMonitor.Server.Controllers
             try
             {
                 System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+                int year = int.Parse(Request.Form["Year"][0].ToString());
                 foreach (var file in UploadFiles)
                 {
                     using (var stream = file.OpenReadStream())
@@ -105,7 +105,10 @@ namespace EcoMonitor.Server.Controllers
                                     if (factoryObject != null)
                                         factoryId = factoryObject.Id;
                                     else
-                                        throw new KeyNotFoundException($"Factory {factory} not found");
+                                    {
+                                        Console.WriteLine($"Factory {factory} not found");
+                                        continue;
+                                    }
                                 }
                                 string pollutant = reader.GetString(1);
                                 double pollution = reader.GetDouble(2);
@@ -114,11 +117,14 @@ namespace EcoMonitor.Server.Controllers
                                 if (pollutantObject != null)
                                     pollutantId = pollutantObject.Id;
                                 else
-                                    throw new KeyNotFoundException($"Pollutant {pollutant} not found");
+                                {
+                                    Console.WriteLine($"Pollutant {pollutant} not found");
+                                    continue;
+                                }
 
                                 if (pollutantId != -1)
                                 {
-                                    _context.Records.Add(new Record() { ObjectId = factoryId, PollutantId = pollutantId, PollutionValue = (float)pollution, RecordYear = 2025 });
+                                    _context.Records.Add(new Record() { ObjectId = factoryId, PollutantId = pollutantId, PollutionValue = (float)pollution, RecordYear = year });
                                     _context.SaveChanges();
                                 }
                             }

@@ -208,6 +208,50 @@
         <UploaderEvents BeforeUpload="OnUploadStart" Success="OnUploadSuccess"/>
     </SfUploader>
 </div>
+
+<div class="my-3"></div>
+
+<!-- Factory Creation -->
+<div class="min-w-0 p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+    <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">
+        Create record
+    </h4>
+    <form @onsubmit="HandleAddRecord">
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">
+            Factory
+        </label>
+       <input type="text" @bind="AddRecordData.Value" name="pollutionValue" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+        </div>
+
+
+    <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">
+            Pollutant
+        </label>
+        <input type="text" @bind="AddRecordData.Value" name="pollutionValue" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+    </div>
+
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">
+                Pollution
+            </label>
+            <input type="number" @bind="AddRecordData.Value" step="0.0001" name="pollutionValue" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">
+                Year
+            </label>
+            <input type="number" @bind="AddRecordData.Year" name="recordYear" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+        </div>
+
+        <button type="submit" class="inline-flex items-center px-4 py-2 border transition duration-150 ease-in-out" style="border-radius: 8px;">
+            Submit
+        </button>
+    </form>
+</div>
+
     <!-- Charts -->
     <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
         Extra

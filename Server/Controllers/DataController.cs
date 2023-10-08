@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using static System.Net.WebRequestMethods;
 using System.Text;
+using Object = EcoMonitor.Shared.Object;
 
 namespace EcoMonitor.Server.Controllers
 {
@@ -76,6 +77,14 @@ namespace EcoMonitor.Server.Controllers
         public IActionResult PostAddRecord([FromBody] PostMessageAddRecord model)
         {
             _context.Records.Add(new Record() { ObjectId = model.ObjectId, PollutantId = model.PollutantId, PollutionValue = model.Value, RecordYear = model.Year});
+            _context.SaveChanges();
+            return Ok();
+        }
+
+        [HttpPost("addfactory")]
+        public IActionResult PostAddFactory([FromBody] PostMessageAddFactory model)
+        {
+            _context.Object.Add(new Object() { ObjectName = model.Name, ObjectDesc = model.Description, Latitude = model.Latitude, Longitude = model.Longitude});
             _context.SaveChanges();
             return Ok();
         }

@@ -11,9 +11,11 @@
 @using Syncfusion.Blazor.DropDowns
 @using Syncfusion.Blazor.Inputs
 @using Syncfusion.Blazor.InPlaceEditor
+@using Syncfusion.Blazor
 @using System.Net.Http.Json
 @using System.Collections.ObjectModel
 @using System.Text;
+@using Syncfusion.Blazor.Charts
 
 @inject IJSRuntime JsRuntime
 
@@ -42,7 +44,7 @@
 	<div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
 		<!-- Card -->
 		<div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
-			<div class="p-3 mr-4 text-orange-500 bg-orange-100 rounded-full dark:text-orange-100 dark:bg-orange-500"> <img width="30" height="30" src="https://img.icons8.com/external-flaticons-flat-flat-icons/30/external-factory-oil-gas-flaticons-flat-flat-icons.png" alt="external-factory-oil-gas-flaticons-flat-flat-icons" /> </div>
+			<div class="p-3 mr-4 text-orange-500 bg-orange-100 rounded-full dark:text-orange-100 dark:bg-orange-500"> <img width="20" height="20" src="https://img.icons8.com/external-flaticons-flat-flat-icons/30/external-factory-oil-gas-flaticons-flat-flat-icons.png" alt="external-factory-oil-gas-flaticons-flat-flat-icons" /> </div>
 			<div>
 				<p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"> Total factories </p>
 				<p class="text-lg font-semibold text-gray-700 dark:text-gray-200"> @Factories.Count </p>
@@ -71,13 +73,23 @@
 			</div>
 		</div>
 		<!-- Card -->
-		<div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
-			<div class="p-3 mr-4 text-teal-500 bg-teal-100 rounded-full dark:text-teal-100 dark:bg-teal-500"> <img width="25" height="25" src="https://img.icons8.com/external-wanicon-two-tone-wanicon/25/external-factory-food-technology-wanicon-two-tone-wanicon.png" alt="external-factory-food-technology-wanicon-two-tone-wanicon" /> </div>
-			<div>
-				<p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"> Data </p>
-				<p class="text-lg font-semibold text-gray-700 dark:text-gray-200"> - </p>
-			</div>
-		</div>
+        <div class="flex items-center bg-white rounded-lg shadow-xs dark:bg-gray-800" style="padding: 0.5rem;">
+    <div class="p-3 mr-4 text-teal-500 bg-teal-100 rounded-full dark:text-teal-100 dark:bg-teal-500">
+        <img width="20" height="20" src="https://img.icons8.com/external-wanicon-two-tone-wanicon/25/external-factory-food-technology-wanicon-two-tone-wanicon.png" alt="external-factory-food-technology-wanicon-two-tone-wanicon" />
+    </div>
+    <div class="flex-1">
+        <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"> Yearly </p>
+        <div style="height:40px;">
+         <SfSparkline XName="xval" YName="yval" Height="100%" Width="200px" Type="@SparklineType.Area" TValue="SparkData" DataSource=@YearlyExcess Fill="#b2cfff" LineWidth="1" ValueType="SparklineValueType.Category">
+                <SparklineBorder Color="#3C78EF" Width="2"></SparklineBorder>
+                <SparklineTooltipSettings TValue="SparkData" Visible='true' Format="${xval} : ${yval}°C">
+                    <SparklineTrackLineSettings Visible='true'>
+                    </SparklineTrackLineSettings>
+                </SparklineTooltipSettings>
+            </SfSparkline>
+        </div>
+    </div>
+</div>
     </div>
 
 
@@ -220,34 +232,34 @@
             <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">
                 Create factory
             </h4>
-    <form @onsubmit="HandleAddRecord">
+    <form @onsubmit="HandleAddFactory">
         <div class="mb-4">
             <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">
-            Factory
-        </label>
-       <input type="text" @bind="AddRecordData.Value" name="pollutionValue" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+                Name
+            </label>
+        <input type="text" @bind="AddFactoryData.Name" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
         </div>
 
 
     <div class="mb-4">
         <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">
-            Pollutant
+            Description
         </label>
-        <input type="text" @bind="AddRecordData.Value" name="pollutionValue" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+        <input type="text" @bind="AddFactoryData.Description" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
     </div>
 
         <div class="mb-4">
             <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">
-                Pollution
+                Latitude
             </label>
-            <input type="number" @bind="AddRecordData.Value" step="0.0001" name="pollutionValue" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+            <input type="number" @bind="AddFactoryData.Latitude" step="0.00001" name="pollutionValue" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
         </div>
 
         <div class="mb-4">
             <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">
-                Year
+                Longitude
             </label>
-            <input type="number" @bind="AddRecordData.Year" name="recordYear" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+            <input type="number" @bind="AddFactoryData.Longitude" step="0.00001" name="recordYear" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
         </div>
 
         <button type="submit" class="inline-flex items-center px-4 py-2 border transition duration-150 ease-in-out" style="border-radius: 8px;">
@@ -285,7 +297,36 @@
         }
     }
 
+    class SparkData
+    {
+        public double x { get; set; }
+        public string xval { get; set; }
+        public int yval { get; set; }
+    };
+
+    List<SparkData> YearlyExcess
+    {
+        get
+        {
+            return new List<SparkData> {
+        new SparkData { x= 1, xval= "Jan", yval= 34 },
+        new SparkData { x= 2, xval= "Feb", yval= 36 },
+        new SparkData { x= 3, xval= "Mar", yval= 32 },
+        new SparkData { x= 4, xval= "Apr", yval= 35 },
+        new SparkData { x= 5, xval= "May", yval= 40 },
+        new SparkData { x= 6, xval= "Jun", yval= 38 },
+        new SparkData { x= 7, xval= "Jul", yval= 33 },
+        new SparkData { x= 8, xval= "Aug", yval= 37 },
+        new SparkData { x= 9, xval="Sep", yval= 34 },
+        new SparkData { x= 10, xval= "Oct", yval= 31 },
+        new SparkData { x= 11, xval= "Nov", yval= 30 },
+        new SparkData { x= 12, xval= "Dec", yval= 29 }
+    };
+        }
+    }
+
     PostMessageAddRecord AddRecordData { get; set; } = new PostMessageAddRecord();
+    PostMessageAddFactory AddFactoryData { get; set; } = new PostMessageAddFactory();
 
     ObservableCollection<EcoMonitor.Shared.Record> Records { get; set; } = new ObservableCollection<Record>();
     ObservableCollection<EcoMonitor.Shared.Object> Factories { get; set; } = new ObservableCollection<EcoMonitor.Shared.Object>();
@@ -294,8 +335,12 @@
     HttpClient http = new HttpClient() { BaseAddress = new System.Uri("http://localhost:5212/") };
 
 
-    protected override async Task OnInitializedAsync() => await Update();
-
+    protected override async Task OnInitializedAsync()
+    {
+        await Update();
+        AddRecordData = new PostMessageAddRecord() { ObjectId = Factories.FirstOrDefault().Id, PollutantId = Pollutants.FirstOrDefault().Id, Value = 100.0f, Year = 2022 };
+        AddFactoryData = new PostMessageAddFactory() { Name = "", Description = "", Latitude = 50.443959f, Longitude = 30.5438169f };
+    }
     private async Task Update()
     {
         try
@@ -303,8 +348,6 @@
             Records = new ObservableCollection<EcoMonitor.Shared.Record>(await http.GetFromJsonAsync<List<EcoMonitor.Shared.Record>>($"api/pollution/records"));
             Factories = new ObservableCollection<EcoMonitor.Shared.Object>(await http.GetFromJsonAsync<List<EcoMonitor.Shared.Object>>($"api/pollution/objects"));
             Pollutants = new ObservableCollection<EcoMonitor.Shared.Pollutant>(await http.GetFromJsonAsync<List<EcoMonitor.Shared.Pollutant>>($"api/pollution/pollutants"));
-
-            AddRecordData = new PostMessageAddRecord() { ObjectId = Factories.FirstOrDefault().Id, PollutantId = Pollutants.FirstOrDefault().Id, Value = 100.0f, Year = 2022 };
         }
         catch (Exception ex)
         {
@@ -326,6 +369,12 @@
     private async Task HandleAddRecord()
     {
         await http.PostAsync("api/pollution/addrecord", new StringContent(JsonConvert.SerializeObject(AddRecordData), Encoding.UTF8, "application/json"));
+        await Update();
+    }
+    
+    private async Task HandleAddFactory()
+    {
+        await http.PostAsync("api/pollution/addfactory", new StringContent(JsonConvert.SerializeObject(AddFactoryData), Encoding.UTF8, "application/json"));
         await Update();
     }
 

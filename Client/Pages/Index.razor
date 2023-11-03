@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/"
 @using EcoMonitor.Shared;
 @using ExcelDataReader;
 @using Newtonsoft.Json;
@@ -16,6 +16,7 @@
 @using System.Collections.ObjectModel
 @using System.Text;
 @using Syncfusion.Blazor.Charts
+
 
 @inject IJSRuntime JsRuntime
 
@@ -80,13 +81,7 @@
     <div class="flex-1">
         <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"> Yearly </p>
         <div style="height:40px;">
-         <SfSparkline XName="xval" YName="yval" Height="100%" Width="200px" Type="@SparklineType.Area" TValue="SparkData" DataSource=@YearlyExcess Fill="#b2cfff" LineWidth="1" ValueType="SparklineValueType.Category">
-                <SparklineBorder Color="#3C78EF" Width="2"></SparklineBorder>
-                <SparklineTooltipSettings TValue="SparkData" Visible='true' Format="${xval} : ${yval}°C">
-                    <SparklineTrackLineSettings Visible='true'>
-                    </SparklineTrackLineSettings>
-                </SparklineTooltipSettings>
-            </SfSparkline>
+
         </div>
     </div>
 </div>
@@ -130,7 +125,26 @@
         
 <br/>
 <div class="w-full overflow-hidden rounded-lg shadow-xs" style="background-color: white; padding: 0px 5px;">
+    <SfDialog Width="335px" IsModal="true" @bind-Visible="DialogVisibility">
+        <DialogTemplates>
+            <Header> Health risk </Header>
+            <Content>
+                        @{
+                            foreach(var data in Dialog)
+                            {
+                                <p>@data.Pollutant : @data.Risk</p>
+                            }
+                }
+            </Content>
+        </DialogTemplates>
+        <DialogButtons>
+            <DialogButton Content="OK" IsPrimary="true" OnClick="@DlgButtonClick" />
+        </DialogButtons>
+        
+        <DialogAnimationSettings Effect="@DialogEffect.None"></DialogAnimationSettings>
+    </SfDialog>
 <SfMaps Width="100%" Background="transparent">
+    <MapsEvents OnMarkerClick="@OnMarkerClickEvent"></MapsEvents>
     <MapsTitleSettings Text="Map of pollutants of the Kyiv region">
         <MapsTitleTextStyle FontFamily="Segoe UI" />
     </MapsTitleSettings>
@@ -139,7 +153,7 @@
     <MapsLayers>
             <MapsLayer UrlTemplate="https://a.tile.openstreetmap.org/level/tileX/tileY.png" TValue="string">
                 <MapsMarkerSettings>
-                    <MapsMarker Visible="true" DataSource="@Factories"  TValue="EcoMonitor.Shared.Object">
+                    <MapsMarker Visible="true" DataSource="@Factories" TValue="EcoMonitor.Shared.Object">
                         <MarkerTemplate>
                             @{
                                 var Data = context as EcoMonitor.Shared.Object;
@@ -297,33 +311,6 @@
         }
     }
 
-    class SparkData
-    {
-        public double x { get; set; }
-        public string xval { get; set; }
-        public int yval { get; set; }
-    };
-
-    List<SparkData> YearlyExcess
-    {
-        get
-        {
-            return new List<SparkData> {
-        new SparkData { x= 1, xval= "Jan", yval= 34 },
-        new SparkData { x= 2, xval= "Feb", yval= 36 },
-        new SparkData { x= 3, xval= "Mar", yval= 32 },
-        new SparkData { x= 4, xval= "Apr", yval= 35 },
-        new SparkData { x= 5, xval= "May", yval= 40 },
-        new SparkData { x= 6, xval= "Jun", yval= 38 },
-        new SparkData { x= 7, xval= "Jul", yval= 33 },
-        new SparkData { x= 8, xval= "Aug", yval= 37 },
-        new SparkData { x= 9, xval="Sep", yval= 34 },
-        new SparkData { x= 10, xval= "Oct", yval= 31 },
-        new SparkData { x= 11, xval= "Nov", yval= 30 },
-        new SparkData { x= 12, xval= "Dec", yval= 29 }
-    };
-        }
-    }
 
     PostMessageAddRecord AddRecordData { get; set; } = new PostMessageAddRecord();
     PostMessageAddFactory AddFactoryData { get; set; } = new PostMessageAddFactory();
@@ -333,7 +320,13 @@
     ObservableCollection<EcoMonitor.Shared.Pollutant> Pollutants { get; set; } = new ObservableCollection<Pollutant>();
 
     HttpClient http = new HttpClient() { BaseAddress = new System.Uri("http://localhost:5212/") };
-
+    private bool DialogVisibility { get; set; } = false;
+    private class DialogData
+    {
+        public string Pollutant { get; set; }
+        public float Risk { get; set; }
+    }
+    private List<DialogData> Dialog = new List<DialogData>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -371,7 +364,7 @@
         await http.PostAsync("api/pollution/addrecord", new StringContent(JsonConvert.SerializeObject(AddRecordData), Encoding.UTF8, "application/json"));
         await Update();
     }
-    
+
     private async Task HandleAddFactory()
     {
         await http.PostAsync("api/pollution/addfactory", new StringContent(JsonConvert.SerializeObject(AddFactoryData), Encoding.UTF8, "application/json"));
@@ -379,6 +372,30 @@
     }
 
 
+    private async Task OnMarkerClickEvent(MarkerClickEventArgs args)
+    {
+        float air = float.Parse(await JsRuntime.InvokeAsync<string>("prompt", "Air amount:"));
+        List<EcoMonitor.Shared.Record> records = new List<Record>();
+        records.AddRange(Records.Where(x => x.RecordYear == 2021 && x.ObjectId == int.Parse(args.Data["Id"])));
+        Dialog.Clear();
+        foreach(var record in records)
+        {
+            if(record.Pollutant.RFC != -1)
+                Dialog.Add(new DialogData() { Pollutant = $"{record.Pollutant.PollutantName} HQ", Risk = ((record.PollutionValue / air)) / record.Pollutant.RFC });
+
+            // LADD = С × СR×  EF × ED / BW × AT × 365
+            if (record.Pollutant.SF != -1)
+            {
+                float LADD = (float)((record.PollutionValue / air) * 20.0 * 365.0 * 70.0 / (70.0 * 70.0 * 365));
+                Dialog.Add(new DialogData() { Pollutant = $"{record.Pollutant.PollutantName} CR", Risk = LADD * record.Pollutant.SF });
+            }
+        }
+        DialogVisibility = true;
+    }
+    private void DlgButtonClick()
+    {
+        this.DialogVisibility = false;
+    }
     private async Task OnUploadSuccess(SuccessEventArgs args) => await Update();
     private async Task OnUploadStart(BeforeUploadEventArgs args)
     {

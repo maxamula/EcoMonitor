@@ -132,6 +132,17 @@ namespace EcoMonitor.Shared
                 OnPropertyChanged(nameof(SF));
             }
         }
+
+        private float _tax = 0;
+        public float Tax
+        {
+            get => _tax;
+            set
+            {
+                _tax = value;
+                OnPropertyChanged(nameof(Tax));
+            }
+        }
     }
 
     public class Record : ViewModel

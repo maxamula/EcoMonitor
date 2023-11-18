@@ -101,8 +101,7 @@
                 <GridColumn AllowFiltering="false" AllowEditing="false" Field="Pollutant.PollutantName" HeaderText="Pollutant"></GridColumn>
                 <GridColumn AllowFiltering="false" AllowEditing="false" Field="Pollutant.DangerClass" HeaderText="Danger class"></GridColumn>
                 <GridColumn AllowFiltering="false" Field="PollutionValue" HeaderText="Value"></GridColumn>
-                <GridColumn AllowFiltering="true" Field="RecordYear" HeaderText="Year">
-                </GridColumn>
+                <GridColumn AllowFiltering="true" Field="RecordYear" HeaderText="Year"></GridColumn>
                 <GridColumn HeaderText="Status">
                         <Template>
                                 @{
@@ -115,6 +114,16 @@
                                     {
                                         <img width="24" height="24" src="https://cdn-icons-png.flaticon.com/24/4315/4315445.png" alt="ok"/>
                                     }
+                                }
+                        </Template>
+                    </GridColumn>
+                    <GridColumn HeaderText="Tax value">
+                        <Template>
+                                @{
+                                    var record = (context as Record);
+                                    var tons = (record.PollutionValue * 24 * 365) / 1000000;
+                                    var value = Math.Round(tons * record.Pollutant.Tax, 2);
+                                    <p>@value (@Math.Round(tons, 2))</p>
                                 }
                         </Template>
                     </GridColumn>
@@ -132,9 +141,31 @@
                         @{
                             foreach(var data in Dialog)
                             {
-                                <p>@data.Pollutant : @data.Risk</p>
+                                <p style="@GetHealthRiskStyle(data.Risk, false)">@data.Pollutant : @data.Risk</p>
                             }
-                }
+                        }
+                        <br/>
+                        <p>Risk level</p>
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 5px; height: 5px; border-radius: 50%; margin-right: 8px; background-color: green;"></div>
+                            <p>Minimal</p>
+                        </div>
+
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 5px; height: 5px; border-radius: 50%; margin-right: 8px; background-color: yellow;"></div>
+                            <p>OK</p>
+                        </div>
+
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 5px; height: 5px; border-radius: 50%; margin-right: 8px; background-color: orange;"></div>
+                            <p>Alarming</p>
+                        </div>
+
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 5px; height: 5px; border-radius: 50%; margin-right: 8px; background-color: red;"></div>
+                            <p>Dangerous</p>
+                        </div>
+
             </Content>
         </DialogTemplates>
         <DialogButtons>
@@ -410,5 +441,25 @@
             args.Cancel = true; 
             return; 
         }
+    }
+
+    private string GetHealthRiskStyle(double value, bool cancer)
+    {
+        if(cancer)
+        {
+            return "color: green;";
+        }
+        else
+        {
+            if (value < 0.1)
+                return "color: green;";
+            else if(value <= 1.0)
+                return "color: yellow;";
+            else if (value <= 3.0)
+                return "color: orange;";
+            else if (value > 3.0)
+                return "color: red;";
+        }
+        return "color: green;";
     }
 }

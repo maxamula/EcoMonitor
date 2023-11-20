@@ -110,6 +110,39 @@ namespace EcoMonitor.Shared
                 OnPropertyChanged(nameof(MaxAmount));
             }
         }
+
+        private float _rfc = 1;
+        public float RFC
+        {
+            get => _rfc;
+            set
+            {
+                _rfc = value;
+                OnPropertyChanged(nameof(RFC));
+            }
+        }
+
+        private float _sf = 1;
+        public float SF
+        {
+            get => _sf;
+            set
+            {
+                _sf = value;
+                OnPropertyChanged(nameof(SF));
+            }
+        }
+
+        private float _tax = 0;
+        public float Tax
+        {
+            get => _tax;
+            set
+            {
+                _tax = value;
+                OnPropertyChanged(nameof(Tax));
+            }
+        }
     }
 
     public class Record : ViewModel

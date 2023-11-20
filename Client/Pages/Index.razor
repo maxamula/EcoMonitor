@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/"
 @using EcoMonitor.Shared;
 @using ExcelDataReader;
 @using Newtonsoft.Json;
@@ -11,9 +11,12 @@
 @using Syncfusion.Blazor.DropDowns
 @using Syncfusion.Blazor.Inputs
 @using Syncfusion.Blazor.InPlaceEditor
+@using Syncfusion.Blazor
 @using System.Net.Http.Json
 @using System.Collections.ObjectModel
 @using System.Text;
+@using Syncfusion.Blazor.Charts
+
 
 @inject IJSRuntime JsRuntime
 
@@ -42,7 +45,7 @@
 	<div class="grid gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
 		<!-- Card -->
 		<div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
-			<div class="p-3 mr-4 text-orange-500 bg-orange-100 rounded-full dark:text-orange-100 dark:bg-orange-500"> <img width="30" height="30" src="https://img.icons8.com/external-flaticons-flat-flat-icons/30/external-factory-oil-gas-flaticons-flat-flat-icons.png" alt="external-factory-oil-gas-flaticons-flat-flat-icons" /> </div>
+			<div class="p-3 mr-4 text-orange-500 bg-orange-100 rounded-full dark:text-orange-100 dark:bg-orange-500"> <img width="20" height="20" src="https://img.icons8.com/external-flaticons-flat-flat-icons/30/external-factory-oil-gas-flaticons-flat-flat-icons.png" alt="external-factory-oil-gas-flaticons-flat-flat-icons" /> </div>
 			<div>
 				<p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"> Total factories </p>
 				<p class="text-lg font-semibold text-gray-700 dark:text-gray-200"> @Factories.Count </p>
@@ -71,13 +74,17 @@
 			</div>
 		</div>
 		<!-- Card -->
-		<div class="flex items-center p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
-			<div class="p-3 mr-4 text-teal-500 bg-teal-100 rounded-full dark:text-teal-100 dark:bg-teal-500"> <img width="25" height="25" src="https://img.icons8.com/external-wanicon-two-tone-wanicon/25/external-factory-food-technology-wanicon-two-tone-wanicon.png" alt="external-factory-food-technology-wanicon-two-tone-wanicon" /> </div>
-			<div>
-				<p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"> Data </p>
-				<p class="text-lg font-semibold text-gray-700 dark:text-gray-200"> - </p>
-			</div>
-		</div>
+        <div class="flex items-center bg-white rounded-lg shadow-xs dark:bg-gray-800" style="padding: 0.5rem;">
+    <div class="p-3 mr-4 text-teal-500 bg-teal-100 rounded-full dark:text-teal-100 dark:bg-teal-500">
+        <img width="20" height="20" src="https://img.icons8.com/external-wanicon-two-tone-wanicon/25/external-factory-food-technology-wanicon-two-tone-wanicon.png" alt="external-factory-food-technology-wanicon-two-tone-wanicon" />
+    </div>
+    <div class="flex-1">
+        <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400"> Yearly </p>
+        <div style="height:40px;">
+
+        </div>
+    </div>
+</div>
     </div>
 
 
@@ -94,8 +101,7 @@
                 <GridColumn AllowFiltering="false" AllowEditing="false" Field="Pollutant.PollutantName" HeaderText="Pollutant"></GridColumn>
                 <GridColumn AllowFiltering="false" AllowEditing="false" Field="Pollutant.DangerClass" HeaderText="Danger class"></GridColumn>
                 <GridColumn AllowFiltering="false" Field="PollutionValue" HeaderText="Value"></GridColumn>
-                <GridColumn AllowFiltering="true" Field="RecordYear" HeaderText="Year">
-                </GridColumn>
+                <GridColumn AllowFiltering="true" Field="RecordYear" HeaderText="Year"></GridColumn>
                 <GridColumn HeaderText="Status">
                         <Template>
                                 @{
@@ -111,6 +117,16 @@
                                 }
                         </Template>
                     </GridColumn>
+                    <GridColumn HeaderText="Tax value">
+                        <Template>
+                                @{
+                                    var record = (context as Record);
+                                    var tons = (record.PollutionValue * 24 * 365) / 1000000;
+                                    var value = Math.Round(tons * record.Pollutant.Tax, 2);
+                                    <p>@value (@Math.Round(tons, 2))</p>
+                                }
+                        </Template>
+                    </GridColumn>
             </GridColumns>
         </SfGrid>
     </div>
@@ -118,7 +134,48 @@
         
 <br/>
 <div class="w-full overflow-hidden rounded-lg shadow-xs" style="background-color: white; padding: 0px 5px;">
+    <SfDialog Width="335px" IsModal="true" @bind-Visible="DialogVisibility">
+        <DialogTemplates>
+            <Header> Health risk </Header>
+            <Content>
+                        @{
+                            foreach(var data in Dialog)
+                            {
+                                <p style="@GetHealthRiskStyle(data.Risk, false)">@data.Pollutant : @data.Risk</p>
+                            }
+                        }
+                        <br/>
+                        <p>Risk level</p>
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 5px; height: 5px; border-radius: 50%; margin-right: 8px; background-color: green;"></div>
+                            <p>Minimal</p>
+                        </div>
+
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 5px; height: 5px; border-radius: 50%; margin-right: 8px; background-color: yellow;"></div>
+                            <p>OK</p>
+                        </div>
+
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 5px; height: 5px; border-radius: 50%; margin-right: 8px; background-color: orange;"></div>
+                            <p>Alarming</p>
+                        </div>
+
+                        <div style="display: flex; align-items: center;">
+                            <div style="width: 5px; height: 5px; border-radius: 50%; margin-right: 8px; background-color: red;"></div>
+                            <p>Dangerous</p>
+                        </div>
+
+            </Content>
+        </DialogTemplates>
+        <DialogButtons>
+            <DialogButton Content="OK" IsPrimary="true" OnClick="@DlgButtonClick" />
+        </DialogButtons>
+        
+        <DialogAnimationSettings Effect="@DialogEffect.None"></DialogAnimationSettings>
+    </SfDialog>
 <SfMaps Width="100%" Background="transparent">
+    <MapsEvents OnMarkerClick="@OnMarkerClickEvent"></MapsEvents>
     <MapsTitleSettings Text="Map of pollutants of the Kyiv region">
         <MapsTitleTextStyle FontFamily="Segoe UI" />
     </MapsTitleSettings>
@@ -127,7 +184,7 @@
     <MapsLayers>
             <MapsLayer UrlTemplate="https://a.tile.openstreetmap.org/level/tileX/tileY.png" TValue="string">
                 <MapsMarkerSettings>
-                    <MapsMarker Visible="true" DataSource="@Factories"  TValue="EcoMonitor.Shared.Object">
+                    <MapsMarker Visible="true" DataSource="@Factories" TValue="EcoMonitor.Shared.Object">
                         <MarkerTemplate>
                             @{
                                 var Data = context as EcoMonitor.Shared.Object;
@@ -208,6 +265,9 @@
         <UploaderEvents BeforeUpload="OnUploadStart" Success="OnUploadSuccess"/>
     </SfUploader>
 </div>
+
+<div class="my-3"></div>
+
     <!-- Charts -->
     <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
         Extra
@@ -215,12 +275,42 @@
     <div class="grid gap-6 mb-8 md:grid-cols-2">
         <div class="min-w-0 p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
             <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">
-                Data
+                Create factory
             </h4>
-            <div class="flex justify-center mt-4 space-x-3 text-sm text-gray-600 dark:text-gray-400">
+    <form @onsubmit="HandleAddFactory">
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">
+                Name
+            </label>
+        <input type="text" @bind="AddFactoryData.Name" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+        </div>
 
 
-            </div>
+    <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">
+            Description
+        </label>
+        <input type="text" @bind="AddFactoryData.Description" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+    </div>
+
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">
+                Latitude
+            </label>
+            <input type="number" @bind="AddFactoryData.Latitude" step="0.00001" name="pollutionValue" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+        </div>
+
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-600 dark:text-gray-400">
+                Longitude
+            </label>
+            <input type="number" @bind="AddFactoryData.Longitude" step="0.00001" name="recordYear" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" required>
+        </div>
+
+        <button type="submit" class="inline-flex items-center px-4 py-2 border transition duration-150 ease-in-out" style="border-radius: 8px;">
+            Submit
+        </button>
+    </form>
         </div>
         <div class="min-w-0 p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
             <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">
@@ -252,17 +342,29 @@
         }
     }
 
+
     PostMessageAddRecord AddRecordData { get; set; } = new PostMessageAddRecord();
+    PostMessageAddFactory AddFactoryData { get; set; } = new PostMessageAddFactory();
 
     ObservableCollection<EcoMonitor.Shared.Record> Records { get; set; } = new ObservableCollection<Record>();
     ObservableCollection<EcoMonitor.Shared.Object> Factories { get; set; } = new ObservableCollection<EcoMonitor.Shared.Object>();
     ObservableCollection<EcoMonitor.Shared.Pollutant> Pollutants { get; set; } = new ObservableCollection<Pollutant>();
 
     HttpClient http = new HttpClient() { BaseAddress = new System.Uri("http://localhost:5212/") };
+    private bool DialogVisibility { get; set; } = false;
+    private class DialogData
+    {
+        public string Pollutant { get; set; }
+        public float Risk { get; set; }
+    }
+    private List<DialogData> Dialog = new List<DialogData>();
 
-
-    protected override async Task OnInitializedAsync() => await Update();
-
+    protected override async Task OnInitializedAsync()
+    {
+        await Update();
+        AddRecordData = new PostMessageAddRecord() { ObjectId = Factories.FirstOrDefault().Id, PollutantId = Pollutants.FirstOrDefault().Id, Value = 100.0f, Year = 2022 };
+        AddFactoryData = new PostMessageAddFactory() { Name = "", Description = "", Latitude = 50.443959f, Longitude = 30.5438169f };
+    }
     private async Task Update()
     {
         try
@@ -270,8 +372,6 @@
             Records = new ObservableCollection<EcoMonitor.Shared.Record>(await http.GetFromJsonAsync<List<EcoMonitor.Shared.Record>>($"api/pollution/records"));
             Factories = new ObservableCollection<EcoMonitor.Shared.Object>(await http.GetFromJsonAsync<List<EcoMonitor.Shared.Object>>($"api/pollution/objects"));
             Pollutants = new ObservableCollection<EcoMonitor.Shared.Pollutant>(await http.GetFromJsonAsync<List<EcoMonitor.Shared.Pollutant>>($"api/pollution/pollutants"));
-
-            AddRecordData = new PostMessageAddRecord() { ObjectId = Factories.FirstOrDefault().Id, PollutantId = Pollutants.FirstOrDefault().Id, Value = 100.0f, Year = 2022 };
         }
         catch (Exception ex)
         {
@@ -296,7 +396,37 @@
         await Update();
     }
 
+    private async Task HandleAddFactory()
+    {
+        await http.PostAsync("api/pollution/addfactory", new StringContent(JsonConvert.SerializeObject(AddFactoryData), Encoding.UTF8, "application/json"));
+        await Update();
+    }
 
+
+    private async Task OnMarkerClickEvent(MarkerClickEventArgs args)
+    {
+        float air = float.Parse(await JsRuntime.InvokeAsync<string>("prompt", "Air amount:"));
+        List<EcoMonitor.Shared.Record> records = new List<Record>();
+        records.AddRange(Records.Where(x => x.RecordYear == 2021 && x.ObjectId == int.Parse(args.Data["Id"])));
+        Dialog.Clear();
+        foreach(var record in records)
+        {
+            if(record.Pollutant.RFC != -1)
+                Dialog.Add(new DialogData() { Pollutant = $"{record.Pollutant.PollutantName} HQ", Risk = ((record.PollutionValue / air)) / record.Pollutant.RFC });
+
+            // LADD = С × СR×  EF × ED / BW × AT × 365
+            if (record.Pollutant.SF != -1)
+            {
+                float LADD = (float)((record.PollutionValue / air) * 20.0 * 365.0 * 70.0 / (70.0 * 70.0 * 365));
+                Dialog.Add(new DialogData() { Pollutant = $"{record.Pollutant.PollutantName} CR", Risk = LADD * record.Pollutant.SF });
+            }
+        }
+        DialogVisibility = true;
+    }
+    private void DlgButtonClick()
+    {
+        this.DialogVisibility = false;
+    }
     private async Task OnUploadSuccess(SuccessEventArgs args) => await Update();
     private async Task OnUploadStart(BeforeUploadEventArgs args)
     {
@@ -311,5 +441,25 @@
             args.Cancel = true; 
             return; 
         }
+    }
+
+    private string GetHealthRiskStyle(double value, bool cancer)
+    {
+        if(cancer)
+        {
+            return "color: green;";
+        }
+        else
+        {
+            if (value < 0.1)
+                return "color: green;";
+            else if(value <= 1.0)
+                return "color: yellow;";
+            else if (value <= 3.0)
+                return "color: orange;";
+            else if (value > 3.0)
+                return "color: red;";
+        }
+        return "color: green;";
     }
 }

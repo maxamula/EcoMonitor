@@ -447,19 +447,20 @@
     {
         if(cancer)
         {
-            return "color: green;";
+        return "color: #d0a2f7;";
         }
         else
         {
             if (value < 0.1)
-                return "color: green;";
-            else if(value <= 1.0)
-                return "color: yellow;";
-            else if (value <= 3.0)
-                return "color: orange;";
-            else if (value > 3.0)
-                return "color: red;";
+    return "color: #7ed7c1;"; // Зеленый
+else if (value <= 1.0)
+    return "color: #f0dbaf;"; // Желтый
+else if (value <= 3.0)
+    return "color: #dc8686;"; // Оранжевый
+else if (value > 3.0)
+    return "color: #b06161;"; // Красный
+
         }
-        return "color: green;";
+        return "color: #7ed7c1;";
     }
 }

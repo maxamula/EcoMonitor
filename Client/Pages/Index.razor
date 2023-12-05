@@ -127,6 +127,17 @@
                                 }
                         </Template>
                     </GridColumn>
+
+                    <GridColumn HeaderText="GetStolb">
+                        <Template>
+                                @{
+                                    var record = (context as Record);
+                                    var fineValue = GetFine(record);
+                                    <p>@fineValue</p>
+                                }
+                        </Template>
+                    </GridColumn>
+
             </GridColumns>
         </SfGrid>
     </div>
@@ -462,4 +473,11 @@
         }
         return "color: green;";
     }
+
+    string GetFine(Record record)
+    {
+    
+        return $"Stolb Value for {record.Id}";
+    }
+
 }
